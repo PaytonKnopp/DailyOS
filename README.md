@@ -1,34 +1,43 @@
 # Daily OS
 
-A single-page, dark-mode personal dashboard for daily priorities, habits, projects, and journaling. Built as a "life control panel" rather than a plain to-do list: apex priorities, non-negotiable daily habits, a project portfolio with progress tracking, a habit-consistency/streak engine, win/loss logging, and a quick-capture journal with custom categories.
+A dark-mode personal dashboard for daily priorities, habits, projects, and journaling, built to live on your phone's home screen as an app. Think of it as a "life control panel" rather than a plain to-do list: apex priorities, non-negotiable daily habits, a project portfolio with progress tracking, a streak engine with a readiness history, win/loss logging, and a quick-capture journal.
 
 ## What it does
 
-- **Apex Priorities** — an editable primary-mission checklist, a list of academic/skill sliders you can add to, and a 3-column (Willing → Building → Shipped) build board.
-- **Project Portfolio** — add/edit/remove projects, each with a status, a progress slider, a start date, and an expandable notes panel.
-- **Consistency Engine** — tracks a daily "readiness %" from your checklists, a current streak and a best-ever streak (a day counts once readiness reaches 80%), plus a per-sector breakdown of today.
-- **Daily Systems** — three editable checklists (non-negotiables, a numbered mind/momentum routine with a built-in silent-reflection timer, and relationships/leisure).
-- **Reflection & Capture** — point-form wins/losses logs, and a quick-capture journal with default categories (Idea / Productivity / Creativity) plus the ability to add and remove your own categories.
-- **Optimize & Suggestions** — a free-text north-star note, a checklist of optimization targets, and a running list of suggestions/tweaks.
-- **Drag-to-reorder** on every list (grip handle appears on hover), including dragging build-board cards between columns.
-- **Glance view** — a compact, read-only daily summary.
-- **Print** — a clean, light-themed one-page summary sheet (use your browser's Print → Save as PDF).
-- **Backup / Restore** — exports all data as a timestamped JSON file; Import loads a JSON backup back in.
-- **CSV export** — journal entries, wins, losses, projects, and readiness history as a spreadsheet-friendly CSV.
-- **Daily Reset** — clears the day's checkboxes and wins/losses; keeps projects, academic progress, journal entries, and custom lists intact. Also happens automatically the first time you open the app on a new calendar day.
+The app has five tabs along the bottom:
 
-## How to run it
+- **Today** — your readiness ring, current streak and what's left to lock in today, plus the four daily checklists: Primary Mission, Non-Negotiables, Mind & Momentum (with a built-in silent-reflection timer) and Relationships & Leisure. Tap a row to check it off.
+- **Build** — Academic Focus sliders, the Willing → Building → Shipped build board, and the Project Portfolio (filter by status, tap a project for status, start date and notes).
+- **Journal** — Quick Capture with your own categories, entries grouped by day, and Wins / Losses with a net score.
+- **Stats** — current and best streak, 7-day average, goal days in the last 30, a 17-week readiness heatmap (tap a day for its score), and today's breakdown by sector.
+- **More** — Optimize Your Life, Suggestions & Tweaks, Back up / Restore / CSV export, a read-only daily summary, print/PDF, and "start the day over".
 
-This is a **static, zero-build, zero-dependency** single HTML file. There is nothing to install and no server required.
+Every item has a **⋯** button to edit it (label, a short detail line and an emoji), move it, or delete it; deleting shows an **Undo** for a few seconds. Drag the **⠿** handle to reorder lists; it works with a finger or a mouse, including moving build-board cards between columns.
 
-- Double-click `index.html` to open it in your default browser, **or**
-- Right-click `index.html` → Open with → (your browser of choice).
+The day resets automatically at local midnight (even if the app stays open), clearing the checklists and wins/losses while keeping projects, academic progress, the journal and your custom lists. A day counts toward the streak once readiness reaches 80%, and an unfinished today never breaks a streak until the day is over.
 
-That's the entire setup. It works fully offline, including on first load.
+## Put it on your phone's home screen
+
+Home-screen apps have to be served over **HTTPS**; opening the file directly won't install. The simplest free host is GitHub Pages:
+
+1. On GitHub, open this repo → **Settings → Pages**.
+2. Under **Build and deployment**, choose **Deploy from a branch**, pick your branch and `/ (root)`, and save.
+3. After a minute, open the URL GitHub shows (like `https://<you>.github.io/DailyOS/`) on your phone.
+4. **iPhone (Safari):** tap **Share → Add to Home Screen**. **Android (Chrome):** tap **Install app** in the banner or the ⋮ menu.
+
+GitHub Pages sites are public, even from a private repo (Pages on private repos needs GitHub Pro). Anyone with the URL can see the default seed content in the source (see NOTES.md); your own entries stay on your device. Any other static HTTPS host (Netlify, Cloudflare Pages, Vercel) works the same way — just upload the folder.
+
+Once installed, it opens full-screen with its own icon, works fully offline, and picks up new versions on the launch after you publish them.
+
+**Your data does not move between Safari and the installed app on iPhone.** They keep separate storage. Install first and use the installed app, or use **More → Back up** in one and **Restore from backup** in the other.
+
+## Running it on a computer
+
+Double-click `index.html` to open it in a browser. Everything works except installing and offline caching, which need the HTTPS hosting above. To test the full app locally, serve the folder (for example `npx http-server .`) and open `http://localhost:8080`.
 
 ## API keys / external services
 
-**None.** This app makes no network requests, loads no CDN scripts, fonts, or third-party libraries, and calls no external API. Everything — layout, icons (inline SVG/emoji), interactivity — is self-contained in `index.html`. You can verify this yourself: there are no `http://` or `https://` references anywhere in the file.
+**None.** This app makes no network requests to anyone else: no CDN scripts, fonts, or third-party libraries, and no external API. Everything — layout, icons (inline SVG/emoji), interactivity — is self-contained in `index.html`; the only other files are its own manifest, service worker and icons, loaded from the same site.
 
 ## Data storage — read this before relying on it
 
@@ -38,19 +47,23 @@ This means:
 - Data does **not** sync across browsers, devices, or people.
 - Opening `index.html` in a different browser (or a different computer, or even the same browser in "private/incognito" mode) starts with a blank slate.
 - Clearing your browser's site data/cache for this file will erase your saved data.
-- There is no cloud backup. **Use the in-app Backup button regularly** (exports a JSON file) if you want a durable, portable copy of your data. Import restores from that JSON file.
+- There is no cloud backup. **Use More → Back up regularly.** On a phone it opens the share sheet so you can save the JSON file to Files, iCloud Drive or Google Drive; More → Restore from backup loads it back in. The More tab shows a dot when your last backup is over a week old.
+- The app asks the browser to keep its storage persistent. An installed home-screen app on iPhone isn't subject to Safari's 7-day cleanup of unused site data.
 
 ## Browser support
 
-Any modern evergreen browser (Chrome, Edge, Firefox, Safari) with JavaScript enabled. No polyfills are included, so very old browsers are not supported.
+Any modern evergreen browser with JavaScript enabled: Safari on iOS 16.4+, Chrome/Edge on Android and desktop, Firefox. No polyfills are included, so very old browsers are not supported.
 
 ## Project structure
 
 ```
-daily-os/
-├── index.html   — the entire application (HTML + CSS + JS, self-contained)
-├── README.md    — this file
-└── NOTES.md     — working/unfinished status, design decisions, ideas for next steps
+DailyOS/
+├── index.html             — the entire application (HTML + CSS + JS, self-contained)
+├── manifest.webmanifest   — home-screen app name, colors and icons
+├── sw.js                  — service worker: offline cache and background updates
+├── icons/                 — app icon (icon.svg is the source; PNGs are rendered from it)
+├── README.md              — this file
+└── NOTES.md               — status, design decisions, ideas for next steps
 ```
 
-There are no build steps, no `package.json`, and no dependency installation — open the file, that's it.
+There are no build steps, no `package.json`, and no dependency installation. When you change `index.html` or the icons, bump `VERSION` in `sw.js` so installed copies refresh their cache.
