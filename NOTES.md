@@ -23,44 +23,55 @@ All of this is default/seed data used to populate the app the first time it's op
 
 ## What's fully working
 
-- All checklists (mission, non-negotiables, mind & momentum, relationships): toggle, add, edit, delete, drag-to-reorder.
-- Academic focus: add/remove/rename sliders, ±5% buttons, drag-to-reorder.
-- Build board (Willing/Building/Shipped): add/edit/delete cards, move via arrows, drag-to-reorder within and across columns.
-- Project portfolio: add/edit/delete, progress slider, status dropdown, start date, expandable notes, drag-to-reorder.
-- Wins/losses: point-form add/edit/delete lists, net score.
-- Journal: default + custom categories (add/remove categories), add/edit/delete entries, Ctrl/Cmd+Enter to log.
-- Optimize note + checklist, and a separate free-form Suggestions list.
-- Consistency engine: current streak, best-ever streak, today's per-sector breakdown. Streak threshold is 80% daily readiness, defined as `GOAL` near the top of the script.
-- Glance view (read-only daily summary) and Print (light-themed one-pager via the browser's native print/PDF).
-- Backup (JSON) / Import (JSON) / CSV export.
-- Daily rollover: on first load of a new calendar day, checkboxes and wins/losses reset automatically; projects, academic progress, journal, and custom lists persist.
-- Data migration: a versioned save format (`v: 5` in the stored JSON) with a one-time migration that clears an earlier bug's seeded fake history so streak counts start honestly at 0 for anyone upgrading from an older save.
+- Mobile-first layout with a bottom tab bar (Today / Build / Journal / Stats / More); on wide screens the tab bar floats and cards sit in two columns.
+- Installable home-screen app: `manifest.webmanifest`, iOS meta tags and `apple-touch-icon`, safe-area padding for the notch and home indicator, and `sw.js` for offline use. The navigation is served from cache and refreshed in the background, so the app opens instantly and updates on the following launch.
+- All checklists (mission, non-negotiables, mind & momentum, relationships, optimize): tap a row to toggle; ⋯ opens a sheet to edit (label, detail line, emoji), move up/down, or delete.
+- Delete, daily reset and restore all show an Undo toast instead of a confirm dialog (restore also asks to confirm first, since it replaces everything).
+- Pointer-event drag-to-reorder on every list via the ⠿ handle. It works with touch and mouse, auto-scrolls near the screen edges, and moves build-board cards between columns (on phones you can drop onto the Willing/Building/Shipped segment buttons).
+- Academic focus: add/remove/rename sliders, ±5% buttons.
+- Build board: segmented single column on phones, three columns on wide screens; arrows or drag to move cards.
+- Project portfolio: status filter chips, progress slider, expandable status/start date/notes, delete with undo.
+- Journal: custom categories (add from +, remove via Edit), entries grouped by day, edit text and category.
+- Consistency engine: current streak (an unfinished today doesn't zero it), best-ever streak, 7-day average, goal days in the last 30, 17-week readiness heatmap. `GOAL` (80%) is near the top of the script.
+- Celebration toasts when today crosses the goal and at 100%, plus light haptics on Android.
+- Silence timer runs off wall-clock time, so it stays accurate when the phone locks or the app is backgrounded.
+- Daily rollover uses the local calendar day and also triggers while the app stays open (every 30 s and whenever it comes back to the foreground).
+- Backup (JSON) and CSV use the share sheet on phones (Save to Files / iCloud / Drive) and a normal download on desktop. Restore validates the file first and never half-applies a bad one. A "last backup" date and a More-tab dot nudge you after 7 days.
+- Glance summary (in a sheet) and Print; the printed page now includes projects too.
+- Data migration: a versioned save format (`v: 5`) with a one-time migration that clears an earlier bug's seeded fake history. Saves from before this redesign load unchanged.
 
-## Known limitations / half-finished
+## Fixed in the mobile redesign
 
-- **No cross-device or cross-browser sync** — see README's storage section. This is a deliberate simplicity tradeoff, not a bug, but worth solving if this becomes a daily driver across a phone + laptop.
-- **No undo and no delete confirmation** — deleting a list item, project, or journal entry is immediate and irreversible in-app (a JSON backup is the only safety net).
-- **Kanban/project status changes aren't drag-driven** — you can drag project *cards* to reorder them, but changing a project's status is still a dropdown, not a drag between status columns (unlike the build board, which does support drag-between-columns). Could unify these into one pattern later.
-- **Print sheet is a fixed summary layout** — it doesn't include the project portfolio or optimize/suggestions sections. Would need explicit additions if you want those on the printed page.
-- **Input sanitization is minimal** — `attr()` only escapes double quotes for attribute values; adequate for a single-user local tool with no server, but not hardened against anything adversarial. Not a concern unless this ever accepts input from anyone but you.
-- **Single-file architecture** — everything (HTML/CSS/JS) lives in one `index.html` on purpose, to keep it a true zero-build, double-click-to-run artifact. If the codebase grows a lot in Visual Studio, consider splitting into `styles.css` / `app.js` / `index.html` — trivial to do, just a `<link>`/`<script src>` and three files instead of one. No functional change either way since there's still no build step.
-- **No automated tests.** Manual testing only so far.
+- **Dates were UTC, not local.** `today()` used `toISOString()`, so in US time zones the day rolled over in the evening (around 7 pm Central), resetting checklists early and filing evening check-ins and journal entries under tomorrow. East of UTC, `addDays(d, 1)` returned the same day, which broke streak counting. Dates now come from the device's local calendar.
+- **Category names with an apostrophe couldn't be selected** (they were spliced into an inline `onclick` string). All actions now go through `data-*` attributes and one delegated event listener, with every value HTML-escaped.
+- **No midnight rollover while the app stayed open.** Fixed as described above; this matters much more for a home-screen app that iOS keeps suspended in memory.
+- **Import could leave broken state behind.** It now validates the file's shape, confirms before replacing, and can be undone.
+- **Save failures were silent.** A toast now warns if storage is full or blocked.
+- **Hover-only edit/delete controls were unreachable on touch.** Replaced by the ⋯ sheet, which works everywhere.
+
+## Known limitations
+
+- **No cross-device or cross-browser sync.** See README's storage section. On iPhone, Safari and the installed home-screen app also keep separate storage.
+- **Hosting is required for the home-screen install.** Service workers and install only work over HTTPS (or localhost). GitHub Pages is public, so the seed content above becomes visible at that URL.
+- **Single-file architecture.** HTML/CSS/JS all live in `index.html`; only the manifest, service worker and icons are separate. Splitting into `styles.css` / `app.js` is still trivial if diffs get unwieldy (remember to add them to `SHELL` in `sw.js`).
+- **No automated tests in the repo.** The redesign was checked with Playwright scripts (phone and desktop viewports; Chicago and Berlin time zones; drag, undo, rollover, timer, import) but those aren't committed.
+- **Icons are pre-rendered.** `icons/icon.svg` is the source; if you change it, re-render the PNGs (180 apple-touch-icon, 192, 512, 512 maskable, 32 favicon).
 
 ## Decisions made that aren't obvious from the code
 
 - **Vanilla JS, no framework, no bundler** — chosen specifically so the whole thing stays a single portable file with zero `npm install`, zero build tooling, and zero external dependencies (see README's "API keys / external services" section — this was a hard requirement after an earlier CDN-dependent version failed to load offline).
-- **`localStorage` over IndexedDB** — simplicity over scale; the data volume here (checklists, a few hundred journal entries, project list) is well within `localStorage`'s size limits.
+- **`localStorage` over IndexedDB** — simplicity over scale; the data volume here (checklists, up to 1,000 journal entries, project list) is well within `localStorage`'s size limits.
+- **UI preferences live under a separate key** (`dailyos:ui`: last tab, build-board column, project filter, dismissed install tip) so they never mix with your data or backups.
+- **Undo over confirm dialogs** — on a phone, confirm dialogs are slow and easy to tap through; a 5-second Undo is both faster and safer.
 - **Streak threshold hardcoded at 80%** (`var GOAL=80` near the top) rather than user-configurable — deliberate, to keep the standard meaningful and consistent day to day. Easy to change to a variable/setting later if wanted.
 - **The `localStorage` key is literally the string `"dailyos:v4"`** even though the save payload's internal version field is `5`. This mismatch is cosmetic only (it's just a storage bucket name) and was left alone on purpose: renaming the key would orphan anyone's existing saved data (the app would look reset because it'd be reading from a different, empty bucket). If you want to clean this up, do it as an explicit versioned migration (read from the old key once, copy into a new key, then stop reading the old one) rather than a plain rename.
 - **Reset button is intentionally partial** — it's a *daily* reset, not a full wipe. It clears the day's checkbox states and the wins/losses lists, but deliberately preserves projects, academic slider values, the journal, and custom categories, since those represent longer-running state you don't want to lose every morning.
 
 ## Ideas for what's next
 
-- Genericized/anonymized seed data as an alternate branch or a build flag, for safely sharing the code publicly without exposing personal specifics (see the flag section above).
-- Optional simple sync (e.g., a Gist-based or tiny self-hosted backend) if cross-device access becomes worth the added complexity.
-- Drag project cards between status columns (Idea/Active/On Hold/Shipped), mirroring the build board's pattern.
-- Undo (a few seconds' grace period) or a lightweight confirm step before destructive deletes.
-- Extend the printable summary to include projects and optimize/suggestions.
-- Optional light theme / theme toggle.
+- Genericized/anonymized seed data as an alternate branch or a build flag, for safely hosting publicly without exposing personal specifics (see the flag section above).
+- Optional simple sync (e.g., a Gist-based or tiny self-hosted backend) if phone + laptop use becomes common.
+- Drag project cards between status columns, mirroring the build board.
+- Optional light theme.
 - Weekly or monthly rollup view once enough streak history accumulates.
-- If the file grows much further, split into `index.html` + `styles.css` + `app.js` for easier diffs in Git — purely organizational, no behavior change.
+- Local reminders (web push on iOS 16.4+ needs a push server, so this is a bigger step).
