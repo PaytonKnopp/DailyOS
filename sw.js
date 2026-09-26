@@ -1,7 +1,7 @@
 /* Daily OS service worker — makes the home-screen app open instantly and work offline.
    The app shell is served from cache and refreshed in the background, so a new version
    shows up on the launch after it's published. Bump VERSION whenever the shell files change. */
-var VERSION = "dailyos-v2";
+var VERSION = "dailyos-v3";
 var SHELL = [
   "./",
   "index.html",

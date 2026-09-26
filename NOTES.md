@@ -60,7 +60,7 @@ All of this is default/seed data used to populate the app the first time it's op
 ## Decisions made that aren't obvious from the code
 
 - **Vanilla JS, no framework, no bundler** — chosen specifically so the whole thing stays a single portable file with zero `npm install`, zero build tooling, and zero external dependencies (see README's "API keys / external services" section — this was a hard requirement after an earlier CDN-dependent version failed to load offline).
-- **`localStorage` over IndexedDB** — simplicity over scale; the data volume here (checklists, up to 1,000 journal entries, project list) is well within `localStorage`'s size limits.
+- **`localStorage` over IndexedDB** — simplicity over scale; the data volume here (checklists, journal entries, project list) is well within `localStorage`'s size limits (roughly 5 MB; a year of daily journaling is a few hundred KB). The journal has no entry cap; if storage ever fills, the save-failure toast appears.
 - **UI preferences live under a separate key** (`dailyos:ui`: last tab, build-board column, project filter, dismissed install tip) so they never mix with your data or backups.
 - **Undo over confirm dialogs** — on a phone, confirm dialogs are slow and easy to tap through; a 5-second Undo is both faster and safer.
 - **Streak threshold hardcoded at 80%** (`var GOAL=80` near the top) rather than user-configurable — deliberate, to keep the standard meaningful and consistent day to day. Easy to change to a variable/setting later if wanted.

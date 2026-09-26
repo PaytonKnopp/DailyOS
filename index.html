@@ -511,7 +511,8 @@ function compute(){
  var need=Math.max(0,Math.ceil(flags.length*GOAL/100)-done);
  return{flags:flags,done:done,pct:pct,ring:ring,need:need};
 }
-function histMap(pct){var m={};HIST.forEach(function(h){m[h.date]=h.pct;});m[today()]=pct;return m;}
+/* keyed to S.date, the day the checklist on screen belongs to: in the seconds between midnight and the rollover it is still yesterday */
+function histMap(pct){var m={};HIST.forEach(function(h){m[h.date]=h.pct;});m[S.date]=pct;return m;}
 function streaks(pct){
  var m=histMap(pct);
  /* an unfinished today doesn't break the streak — it counts back from yesterday until today is met */
@@ -521,8 +522,8 @@ function streaks(pct){
  dates.forEach(function(dt){if(m[dt]>=GOAL){run=prev&&addDays(prev,1)===dt?run+1:1;longest=Math.max(longest,run);}else run=0;prev=dt;});
  return{current:cur,longest:longest,met:pct>=GOAL};
 }
-function upsertToday(){var c=compute();HIST=HIST.filter(function(x){return x.date!==today();})
- .concat([{date:today(),pct:c.pct}]).sort(function(a,b){return a.date<b.date?-1:1;});}
+function upsertToday(){var c=compute(),d=S.date;HIST=HIST.filter(function(x){return x.date!==d;})
+ .concat([{date:d,pct:c.pct}]).sort(function(a,b){return a.date<b.date?-1:1;});}
 function commit(){upsertToday();save();render();}
 function resetDaily(src){
  var o=JSON.parse(JSON.stringify(src));o.date=today();
@@ -1007,7 +1008,7 @@ var ACT={
  /* journal */
  log:function(){var box=$("draftbox");if(box)UI.draft=box.value;if(!UI.draft.trim())return;
    var tag=UI.tag||(CATS[0]&&CATS[0].name)||"Idea";
-   ENT=[{id:Date.now(),text:UI.draft.trim(),tag:tag,t:new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}),date:today()}].concat(ENT).slice(0,1000);
+   ENT=[{id:Date.now(),text:UI.draft.trim(),tag:tag,t:new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}),date:today()}].concat(ENT);
    UI.draft="";buzz();commit();toast("Filed under "+esc(tag));},
  jMore:function(){UI.jLimit+=60;render();},
  /* stats */
