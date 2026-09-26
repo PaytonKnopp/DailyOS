@@ -1,7 +1,7 @@
 /* Daily OS service worker — makes the home-screen app open instantly and work offline.
    The app shell is served from cache and refreshed in the background, so a new version
    shows up on the launch after it's published. Bump VERSION whenever the shell files change. */
-var VERSION = "dailyos-v2";
+var VERSION = "dailyos-v4";
 var SHELL = [
   "./",
   "index.html",
@@ -15,7 +15,10 @@ var SHELL = [
 ];
 
 self.addEventListener("install", function (e) {
-  e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));
+  /* cache: "reload" skips the browser's HTTP cache, so a new version never installs with stale files */
+  e.waitUntil(caches.open(VERSION).then(function (c) {
+    return c.addAll(SHELL.map(function (u) { return new Request(u, { cache: "reload" }); }));
+  }).then(function () { return self.skipWaiting(); }));
 });
 
 self.addEventListener("activate", function (e) {
