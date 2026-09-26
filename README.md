@@ -6,15 +6,19 @@ A dark-mode personal dashboard for daily priorities, habits, projects, and journ
 
 The app has five tabs along the bottom:
 
-- **Today** — your readiness ring, current streak and what's left to lock in today, plus the four daily checklists: Primary Mission, Non-Negotiables, Mind & Momentum (with a built-in silent-reflection timer) and Relationships & Leisure. Tap a row to check it off.
+- **Today** — your readiness ring, current streak and what's left to lock in today, plus the four daily checklists: Primary Mission, Non-Negotiables, Mind & Momentum and Relationships & Leisure. Tap a row to check it off. Habits with a timer (like 5 minutes of silent thought or 30 minutes of reading) show a Start button; when the time is up, the habit checks itself off.
 - **Build** — Academic Focus sliders, the Willing → Building → Shipped build board, and the Project Portfolio (filter by status, tap a project for status, start date and notes).
-- **Journal** — Quick Capture with your own categories, entries grouped by day, and Wins / Losses with a net score.
-- **Stats** — current and best streak, 7-day average, goal days in the last 30, a 17-week readiness heatmap (tap a day for its score), and today's breakdown by sector.
-- **More** — Optimize Your Life, Suggestions & Tweaks, Back up / Restore / CSV export, a read-only daily summary, print/PDF, and "start the day over".
+- **Journal** — Quick Capture with your own categories, a searchable list of entries grouped by day, and Wins / Losses with a net score.
+- **Stats** — current and best streak, 7-day average, goal days in the last 30, and a readiness heatmap: tap any day to see what you did, what you missed, your wins, losses and journal entries that day. Below it: **Week in review** (this week against last week, your strongest habit and the one that needs attention), today by sector, and **Habit consistency** (each habit's 30-day rate, current run and last two weeks).
+- **More** — Optimize Your Life, Suggestions & Tweaks, Back up / Restore / CSV export, **Settings** (when your day ends, and a daily check-in reminder), a read-only daily summary, print/PDF, and "start the day over".
 
-Every item has a **⋯** button to edit it (label, a short detail line and an emoji), move it, or delete it; deleting shows an **Undo** for a few seconds. Drag the **⠿** handle to reorder lists; it works with a finger or a mouse, including moving build-board cards between columns.
+Every item has a **⋯** button to edit it (label, a short detail line, an emoji, a timer, and which days of the week it repeats), move it, or delete it; deleting shows an **Undo** for a few seconds. Drag the **⠿** handle to reorder lists; it works with a finger or a mouse, including moving build-board cards between columns.
 
-The day resets automatically at local midnight (even if the app stays open), clearing the checklists and wins/losses while keeping projects, academic progress, the journal and your custom lists. A day counts toward the streak once readiness reaches 80%, and an unfinished today never breaks a streak until the day is over.
+**Rest days.** Turn a weekday off for a habit (say, workouts on Sunday) and on that day it's dimmed and doesn't count, so a planned rest day never lowers your score or breaks your streak.
+
+**When a day ends.** By default the day turns over at **3 AM**, not midnight, so checking off "read before bed" at 12:30 AM still counts for the day you did it. Change it under More → Settings → Day ends at. The rollover happens even if the app stays open: it clears the checklists and today's wins/losses, and keeps projects, academic progress, the journal and your lists. Nothing is lost: every day's score, which habits you did and missed, and its wins and losses are kept in your history. A day counts toward the streak once readiness reaches 80%, and an unfinished today never breaks a streak until the day is over.
+
+**Reminders.** More → Settings → Check-in reminder adds a repeating daily event with an alert to your calendar, or shows the three iPhone Shortcuts steps for a daily notification. (Web apps can't send notifications on their own without a server.)
 
 ## Put it on your phone's home screen
 
@@ -27,7 +31,7 @@ Home-screen apps have to be served over **HTTPS**; opening the file directly won
 
 GitHub Pages sites are public, even from a private repo (Pages on private repos needs GitHub Pro). Anyone with the URL can see the default seed content in the source (see NOTES.md); your own entries stay on your device. Any other static HTTPS host (Netlify, Cloudflare Pages, Vercel) works the same way — just upload the folder.
 
-Once installed, it opens full-screen with its own icon, works fully offline, and picks up new versions on the launch after you publish them.
+Once installed, it opens full-screen with its own icon and works fully offline. When you publish a new version, the app picks it up in the background and offers a **Reload**; otherwise it switches over on the next launch.
 
 **Your data does not move between Safari and the installed app on iPhone.** They keep separate storage. Install first and use the installed app, or use **More → Back up** in one and **Restore from backup** in the other.
 
@@ -42,6 +46,8 @@ Double-click `index.html` to open it in a browser. Everything works except insta
 ## Data storage — read this before relying on it
 
 All data (checklists, projects, journal entries, streak history, everything) is saved to your **browser's `localStorage`**, scoped to this one file/origin, in this one browser, on this one device.
+
+Only what you enter is stored there. The starter content in `index.html` (shown the first time the app opens on a device) is generic, so the public repo and the Pages URL contain nothing personal.
 
 This means:
 - Data does **not** sync across browsers, devices, or people.
@@ -62,8 +68,12 @@ DailyOS/
 ├── manifest.webmanifest   — home-screen app name, colors and icons
 ├── sw.js                  — service worker: offline cache and background updates
 ├── icons/                 — app icon (icon.svg is the source; PNGs are rendered from it)
+├── tests/                 — browser tests (not part of the app; run in CI on every push)
+├── .github/workflows/     — runs the tests
 ├── README.md              — this file
 └── NOTES.md               — status, design decisions, ideas for next steps
 ```
 
-There are no build steps, no `package.json`, and no dependency installation. When you change `index.html` or the icons, bump `VERSION` in `sw.js` so installed copies refresh their cache.
+The app has no build step and no dependencies. When you change `index.html` or the icons, bump `VERSION` in `sw.js` so installed copies refresh their cache.
+
+To run the tests: `cd tests && npm ci && npx playwright install chromium && npm test`.

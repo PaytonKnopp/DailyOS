@@ -1,0 +1,12 @@
+{
+  "name": "dailyos-tests",
+  "private": true,
+  "description": "Browser tests for Daily OS. The app itself has no dependencies; this folder only exists to test it.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-concurrency=1"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}
